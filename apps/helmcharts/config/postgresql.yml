@@ -1,0 +1,12 @@
+primary:
+  persistence:
+    size: 10Gi
+    storageClass: gp2
+  persistentVolumeClaimRetentionPolicy:
+    enabled: true
+    whenScaled: Delete
+    whenDeleted: Delete
+auth:
+  username: coder
+  password: coder
+  database: coder

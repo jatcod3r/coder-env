@@ -108,6 +108,8 @@ module "eks" {
                 AmazonEKS_CNI_Policy = "arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy"
                 AmazonEC2FullAccess = "arn:aws:iam::aws:policy/AmazonEC2FullAccess"
             }
+            
+            
 
             tags = {
                 "ResourceOwner": "Jullian"
@@ -140,8 +142,39 @@ provider "kubernetes" {
     host = module.eks.cluster_endpoint
     cluster_ca_certificate = base64decode(module.eks.cluster_certificate_authority_data)
     exec {
-        api_version = "client.authentication.k8s.io/v1beta1"
+        api_version = var.cluster_api_version
         args = ["eks", "get-token", "--region", var.region, "--cluster-name", module.eks.cluster_name, "--output", "json"]
-        command = ["aws"]
+        command = "aws"
     }
+}
+
+resource "kubernetes_namespace" "coder" {
+    metadata {
+        name = "coder"
+    }
+    depends_on = [ module.eks ]
+}
+
+output "coder_namespace" {
+    value = kubernetes_namespace.coder.metadata.0.name
+}
+
+output "cluster_name" {
+    value = module.eks.cluster_name
+}
+
+output "cluster_ca_data" {
+    value = module.eks.cluster_certificate_authority_data
+}
+
+output "cluster_endpoint" {
+    value = module.eks.cluster_endpoint
+}
+
+output "cluster_region" {
+    value = var.region
+}
+
+output "cluster_api_version" {
+    value = var.cluster_api_version
 }
