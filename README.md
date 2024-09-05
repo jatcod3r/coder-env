@@ -11,21 +11,24 @@ The kubernetes infrastructure and applications will be separate deployments. As 
 To start deploying, you'll need to run the Terraform CLI from `/infrastructure` and populate inputs for the build to use:
 ```bash
 $ terraform -chdir=./infrastructure validate
-$ terraform -chdir=./infrastructure apply -var-file='../inputs/infrastructure.tfvars'
+$ terraform -chdir=./infrastructure apply -var-file='../inputs/infrastructure.tfvars.json'
 ```
 
-As for how an example of how the base inputs should look like, here's a sample `.tfvars`:
+Currently, the infrastructure input structure looks like the following `.tfvars.json` sample:
 ```conf
-region = "ca-central-1"
-cluster_name = "coder-eks"
-vpc_name = "coder-vpc"
-ami_id = "ami-009749b44be7aa9fa" # amazon/amazon-eks-node-1.30-v20240807
-cluster_api_version = "client.authentication.k8s.io/v1beta1"
-cluster_version = "1.30"
-sysbox_install_label = {
-    "beta.kubernetes.io/os" = "linux"
+{
+    "region": "ca-central-1",
+    "cluster_name": "*****",
+    "vpc_name": "*****",
+    "ami_id": "ami-009749b44be7aa9fa", # eks managed node image
+    "cluster_api_version": "client.authentication.k8s.io/v1beta1",
+    "cluster_version": "1.30",
+    "instance_type": "t3.large",
+    "coder_version": "2.15.0",
+    "db_engine_version": "16.3",
+    "db_username": "****",
+    "db_password": "****",
 }
-instance_type = "t3.large"
 ```
 
 ## Creating Coder Servers & Kubernetes Apps
