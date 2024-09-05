@@ -1,0 +1,16 @@
+coder:
+  env:
+    - name: CODER_PG_CONNECTION_URL
+      value: postgres://coder:coder123@terraform-20240903215120291900000001.c2vxm4dhg3n6.ca-central-1.rds.amazonaws.com:5432/coderdb
+  service:
+    enable: true
+    type: LoadBalancer
+    sessionAffinity: None
+  volumes:
+    - name: "kubeconfig-mount"
+      secret:
+        secretName: "kubeconfig-secret"
+  volumeMounts:
+    - name: "kubeconfig-mount"
+      mountPath: "/mnt/secrets/kube"
+      readOnly: true

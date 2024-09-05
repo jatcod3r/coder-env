@@ -1,8 +1,0 @@
-coder:
-  env:
-    - name: CODER_PG_CONNECTION_URL
-      value: postgres://coder:coder@coder-db-postgresql.coder.svc.cluster.local:5432/coder?sslmode=disable
-  service:
-    enable: true
-    type: LoadBalancer
-    sessionAffinity: None
