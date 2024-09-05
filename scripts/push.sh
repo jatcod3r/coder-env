@@ -3,4 +3,4 @@
 TEMPLATE=$1
 OPTS=$2
 
-coder templates push -d ./examples/$TEMPLATE $TEMPLATE $OPTS
+coder templates push -d ./workspace/$TEMPLATE $TEMPLATE $OPTS
