@@ -1,0 +1,16 @@
+---
+apiVersion: node.eks.aws/v1alpha1
+kind: NodeConfig
+spec:
+  cluster:
+    name: ${CLUSTER_NAME}
+    apiServerEndpoint: ${CLUSTER_ENDPOINT}
+    certificateAuthority: ${CLUSTER_AUTH_BASE64}
+    cidr: ${CLUSTER_SERVICE_CIDR}
+metadata:
+---
+apiVersion: "v1"
+kind: Node
+metadata:
+  labels:
+    app.kubernetes.io/subnet-type: ${SUBNET_TYPE}

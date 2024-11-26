@@ -1,0 +1,10 @@
+apiVersion: v1
+type: Kustomize
+namespace: coder
+helmCharts:
+- name: coder-logstream-kube
+  releaseName: coder-logstream-kube
+  version: 2.15.0
+  repo: https://helm.coder.com/logstream-kube
+  namespace: coder
+  valuesFile: ./values.yml
