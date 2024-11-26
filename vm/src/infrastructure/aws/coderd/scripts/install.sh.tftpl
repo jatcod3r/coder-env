@@ -11,7 +11,7 @@ chown coder:coder -R /home/coder/
 su coder
 
 export HOME="/home/coder" && \  
-    wget -O - https://coder.com/install.sh | sh --version=${CODER_VER} && \
+    wget -O - https://coder.com/install.sh | sh -s -- --version=${CODER_VER} && \
     systemctl daemon-reload
 
 if [ -z "${ENABLE_AS_PROXY}" ]; then
