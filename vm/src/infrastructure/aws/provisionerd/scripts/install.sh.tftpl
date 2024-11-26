@@ -1,0 +1,26 @@
+#!/bin/bash
+
+set -o pipefail
+
+wget -O /tmp/terraform.zip "https://releases.hashicorp.com/terraform/${TF_VER}/terraform_${TF_VER}_linux_amd64.zip" && \
+    busybox unzip /tmp/terraform.zip -d /usr/local/bin && \
+    chmod +x /usr/local/bin/terraform && \
+    terraform --version
+
+chown coder:coder /home/coder
+su coder
+
+# Start Coder Server once setup is complete
+export HOME="/home/coder" && \  
+    wget -O - https://coder.com/install.sh | sh && \
+    systemctl daemon-reload
+
+cat <<EOF >> ${CODER_ENV_CONFIG_FILE}
+CODER_URL=${CODER_URL}
+CODER_PROVISIONER_DAEMON_KEY=$(echo -n "${CODER_PROVISIONER_DAEMON_KEY}")
+CODER_PROVISIONER_DAEMON_VERBOSE=true
+CODER_CACHE_DIRECTORY=${CODER_CACHE_DIRECTORY}
+EOF
+
+systemctl enable coder-provisioner
+systemctl restart coder-provisioner

@@ -1,0 +1,54 @@
+#cloud-config
+packages:
+- net-tools
+- curl
+- wget
+- bash
+- git
+- openssl
+- openssh-client
+- postgresql-client
+
+groups:
+- coder
+users:
+- name: coder
+  homedir: /home/coder
+  groups: coder
+  primary_group: coder
+  sudo: ALL=(ALL) NOPASSWD:ALL
+  uid: 1000
+  shell: /bin/bash
+  lock_passwd: true
+  no_user_group: false
+  create_groups: false
+
+write_files:
+- path: /etc/coder.d/coder.env
+  content: |
+    ${CODER_ENV}
+  append: true
+- path: /etc/coder.d/coder-workspace-proxy.env
+  content: |
+    ${CODER_WS_PROXY_ENV}
+  append: true
+- path: /etc/ssl/certs/coder/coder-tls/tls.crt
+  content: |
+    ${CODER_TLS_CRT}
+  append: true
+- path: /etc/ssl/certs/coder/coder-tls/tls.key
+  content: |
+    ${CODER_TLS_KEY}
+  append: true
+- path: /var/log/coderd-logs.log
+  owner: coder:coder
+  permissions: '0666'
+  defer: true
+- path: /var/log/cloud-init.log
+  owner: root:root
+  permissions: '0666'
+- path: /var/log/cloud-init-output.log
+  owner: root:root
+  permissions: '0666'
+
+output : { all : '| tee -a /var/log/cloud-init-output.log' }

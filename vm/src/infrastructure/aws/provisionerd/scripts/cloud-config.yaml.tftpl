@@ -1,0 +1,77 @@
+#cloud-config
+packages:
+- net-tools
+- curl
+- wget
+- bash
+- git
+- openssl
+- openssh-client
+
+groups:
+- coder
+users:
+- name: coder
+  homedir: /home/coder
+  groups: coder
+  primary_group: coder
+  sudo: ALL=(ALL) NOPASSWD:ALL
+  uid: 1000
+  shell: /bin/bash
+  lock_passwd: true
+  create_groups: false
+  no_user_group: true
+
+write_files:
+- path: ${CODER_CACHE_DIRECTORY}/empty
+  owner: coder:coder
+  permissions: '0666'
+- path: ${CODER_ENV_CONFIG_FILE}
+  owner: coder:coder
+  permissions: '0644'
+- path: /var/log/coderd-logs.log
+  owner: coder:coder
+  permissions: '0666'
+- path: /var/log/cloud-init.log
+  owner: root:root
+  permissions: '0666'
+- path: /var/log/cloud-init-output.log
+  owner: root:root
+  permissions: '0666'
+- path: /lib/systemd/system/coder-provisioner.service
+  permissions: '0666'
+  defer: true
+  content: |
+    [Unit]
+    Description="Coder - External Provisioner Daemon"
+    Documentation=https://coder.com/docs/admin/provisioners
+    Requires=network-online.target
+    After=network-online.target
+    ConditionFileNotEmpty=${CODER_ENV_CONFIG_FILE}
+    StartLimitIntervalSec=10
+    StartLimitBurst=3
+
+    [Service]
+    Type=simple
+    EnvironmentFile=${CODER_ENV_CONFIG_FILE}
+    User=coder
+    Group=coder
+    ProtectSystem=full
+    PrivateTmp=yes
+    PrivateDevices=yes
+    SecureBits=keep-caps
+    AmbientCapabilities=CAP_IPC_LOCK CAP_NET_BIND_SERVICE
+    CacheDirectory=coder
+    CapabilityBoundingSet=CAP_SYSLOG CAP_IPC_LOCK CAP_NET_BIND_SERVICE
+    KillSignal=SIGINT
+    KillMode=mixed
+    NoNewPrivileges=yes
+    ExecStart=/usr/bin/coder provisioner start
+    Restart=on-failure
+    RestartSec=5
+    TimeoutStopSec=90
+
+    [Install]
+    WantedBy=multi-user.target
+
+output : { all : '| tee -a /var/log/cloud-init-output.log' }

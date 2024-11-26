@@ -1,0 +1,33 @@
+#!/bin/bash
+
+set -o pipefail
+
+wget -O /tmp/terraform.zip "https://releases.hashicorp.com/terraform/${TF_VER}/terraform_${TF_VER}_linux_amd64.zip" && \
+    busybox unzip /tmp/terraform.zip -d /usr/local/bin && \
+    chmod +x /usr/local/bin/terraform && \
+    terraform --version
+
+chown coder:coder -R /home/coder/
+su coder
+
+export HOME="/home/coder" && \  
+    wget -O - https://coder.com/install.sh | sh --version=${CODER_VER} && \
+    systemctl daemon-reload
+
+if [ -z "${ENABLE_AS_PROXY}" ]; then
+    IFS="/:@" read -r _ _ _ DB_USER PGPASSWORD DB_URL DB_PORT DB_NAME <<< "$CODER_PG_CONNECTION_URL";
+    unset IFS;
+
+    PGPASSWORD=$PGPASSWORD psql \
+        --host=$DB_URL \
+        --port=$DB_PORT \
+        --username=$DB_USER \
+        -c "CREATE DATABASE $DB_NAME;" \
+        --no-password; 2> /dev/null
+
+    systemctl enable --now coder
+    systemctl restart coder
+else
+    systemctl enable --now coder-workspace-proxy
+    systemctl restart coder-workspace-proxy
+fi
